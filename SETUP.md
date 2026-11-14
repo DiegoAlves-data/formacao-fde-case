@@ -36,6 +36,14 @@ O repositório traz uma skill do Claude Code, a `setup-fde` (em `.claude/skills/
 
 Depois, feche o Claude Code, rode `cd ~/formacao-fde-case` e abra uma sessão nova com `claude`. Nela, peça de novo "configura o meu setup de FDE".
 
+## O Ahrena no Claude Code
+
+O **Ahrena** é um conjunto de plugins do Claude Code que a Barte usa para trabalhar com agentes. Ele traz um time de agentes, cada um com um papel: a **Athena** recebe um pedido de construção, planeja e distribui o trabalho; outros agentes constroem; o **Argos** revisa antes de qualquer coisa entrar. O case já vem configurado para usar o Ahrena (no arquivo `.claude/settings.json`), mas cada máquina precisa instalar os plugins uma vez.
+
+**Como instalar.** A skill `setup-fde` instala: quando você pede "configura o meu setup de FDE", ela instala os plugins do Ahrena junto com o resto. No Ubuntu 22.04 (e no WSL com ele), ela antes atualiza o git, porque o que vem com o sistema é velho demais para instalar os plugins; isso pede a senha do computador, e ela passa o comando para você rodar no seu terminal. Depois, feche o Claude Code e abra de novo na pasta do case.
+
+**Como confirmar que ele está ativo.** Dentro do Claude Code, na pasta do case, digite `/agents`. Na lista tem que aparecer a `athena` (às vezes com o nome completo, `ahrena-engineering-development:athena`). A skill `setup-fde` também confere: o item `ahrena` fica `ok` quando os plugins estão instalados, e diz quais faltam quando não estão.
+
 ## Passo a passo à mão
 
 Se preferir fazer sozinho, siga na ordem, copiando e colando os comandos. Reserve uns 30 a 45 minutos.
