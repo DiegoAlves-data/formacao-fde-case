@@ -15,6 +15,7 @@ O que o curso já tem e o que ainda falta, em 14/11/2026.
 | **Supabase** | sim, o CLI | banco, autenticação e storage | CLI pronto; o líder de cada grupo cria a conta ([teams/CONTAS.md](teams/CONTAS.md)) |
 | **Cloudflare** | sim, o Wrangler (com Node.js e npm) | o front em Astro e o FastAPI, cada um num Worker | Wrangler pronto; o líder de cada grupo cria a conta ([teams/CONTAS.md](teams/CONTAS.md)) |
 | **Docker** | sim (Colima no Mac) | sobe o Supabase local | pronto |
+| **bpmn.io** | não; roda no navegador | não entra: é onde se desenha e se edita o processo antes do agente | pronto para usar: o editor online não pede conta nem instalação |
 | **Astro com React** | não; vem no projeto com `npm create astro@latest` | a tela de quem aprova | pronto para usar: Node.js e npm já vêm na `setup-fde` |
 | **FastMCP** | não; vem no projeto com `uv add fastmcp` | o servidor MCP, com login OAuth pelo Supabase | pronto para usar; o FastMCP Gateway pede conta na Prefect |
 | **Resend** | não | e-mail: avisar quem aprova | na arquitetura de referência; a conta é opcional no fim de semana |
@@ -44,6 +45,17 @@ Regras, skills e agentes que transformam o Claude Code num time: a Athena planej
 - No curso, o `.claude/settings.json` já liga os plugins, e a skill `setup-fde` instala e confere. Para confirmar, abra uma sessão nova do Claude Code na pasta do case e rode `/agents`: a Athena precisa aparecer.
 
 **Use quando:** o trabalho vira código que vai para produção: issue, plano, PRs revisados e merge na main.
+
+## bpmn.io
+
+Editor de diagramas BPMN 2.0 que roda no navegador: abre um arquivo `.bpmn`, deixa mover, criar e renomear tarefas, eventos e decisões, e baixa o arquivo editado. Por trás dele está a biblioteca bpmn-js.
+
+- [bpmn.io](https://bpmn.io): o projeto, com a documentação e os exemplos
+- [Editor online](https://demo.bpmn.io): arraste o `.bpmn` para a página, edite e baixe o arquivo de novo, sem conta nem instalação
+- [bpmn-js](https://bpmn.io/toolkit/bpmn-js/): a biblioteca do editor, para mostrar ou editar o diagrama numa página sua
+- [Camunda Modeler](https://camunda.com/download/modeler/): a versão desktop, para quem prefere trabalhar com o arquivo fora do navegador
+
+**Use quando:** o grupo for desenhar, abrir ou editar em BPMN 2.0 o processo do contas a pagar do case. O `.bpmn` é texto (XML): edite no bpmn.io e faça o commit do arquivo, como qualquer outro.
 
 ## Supabase
 
