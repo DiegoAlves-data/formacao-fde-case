@@ -1,0 +1,625 @@
+<title>Diagnóstico Já Chegou · Grupo 3</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@500;600;700&display=swap">
+<style>
+/* Layout: material de estudo em coluna única (74ch), nav fixa, gráficos SVG inline em escala real, cada um com a tabela dos dados logo abaixo. */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --fg:#17202a; --muted:#5b6673; --line:#d9dee5; --ink-soft:#e9edf2;
+  --accent:#0f766e; --accent-soft:#d9f0ec; --warn:#b45309; --warn-soft:#fbeedb; --risk:#b42318; --risk-soft:#fbe4e1; --ok:#15803d; --ok-soft:#dcf2e3;
+  --cd:#0e8f80; --lj:#c2620b; --seq:#0e8f80; --seq-track:#e3ebe9;
+  --dg-ai:#e6edf9; --dg-ai-line:#1d4fa8; --dg-hu:#e3f3ea; --dg-hu-line:#1f7a4d; --dg-lock:#fae5e3; --dg-lock-line:#b3322b;
+  --font-display:"Instrument Sans",system-ui,sans-serif; --font-body:"IBM Plex Sans",system-ui,sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#161d26; --fg:#e7ecf2; --muted:#9aa7b5; --line:#2a3441; --ink-soft:#1d2733;
+  --accent:#4fd1c0; --accent-soft:#12302d; --warn:#f0a95b; --warn-soft:#3a2a12; --risk:#f28b7f; --risk-soft:#3d1a16; --ok:#6ee7a0; --ok-soft:#10301d;
+  --cd:#1fa391; --lj:#c47728; --seq:#1fa391; --seq-track:#1e2b2a;
+  --dg-ai:#1c2a42; --dg-ai-line:#7ea6ec; --dg-hu:#15291f; --dg-hu-line:#5cc690; --dg-lock:#331a19; --dg-lock-line:#ef7d74;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#161d26; --fg:#e7ecf2; --muted:#9aa7b5; --line:#2a3441; --ink-soft:#1d2733;
+  --accent:#4fd1c0; --accent-soft:#12302d; --warn:#f0a95b; --warn-soft:#3a2a12; --risk:#f28b7f; --risk-soft:#3d1a16; --ok:#6ee7a0; --ok-soft:#10301d;
+  --cd:#1fa391; --lj:#c47728; --seq:#1fa391; --seq-track:#1e2b2a;
+  --dg-ai:#1c2a42; --dg-ai-line:#7ea6ec; --dg-hu:#15291f; --dg-hu-line:#5cc690; --dg-lock:#331a19; --dg-lock-line:#ef7d74;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:900px;margin:0 auto;padding-block:0 4rem;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{font-family:var(--font-display);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(1.9rem,4vw,2.6rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.42rem;font-weight:600;margin-top:3.1rem;padding-top:1.15rem;border-top:1px solid var(--line)}
+h3{font-size:1.08rem;font-weight:600;margin-top:1.75rem}
+h4{font-size:.95rem;font-weight:600;margin-top:1rem}
+p{margin:.7rem 0;max-width:74ch}
+ul,ol{margin:.5rem 0;padding-left:1.3rem;max-width:74ch}
+li{margin:.3rem 0}
+li::marker{color:var(--muted)}
+.eyebrow{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lead{font-size:1.1rem;max-width:70ch}
+.muted{color:var(--muted)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+header.top{padding-block:2.4rem 1.4rem}
+header.top .meta{display:flex;flex-wrap:wrap;gap:.45rem 1.3rem;color:var(--muted);font-size:.89rem;margin-top:.8rem}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin:0 -16px;padding-inline:16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;padding:.7rem .2rem;margin-right:1.05rem;color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:500}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--accent);outline:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;margin:.8rem 0}
+.tablewrap{overflow-x:auto;max-width:100%}
+th,td{text-align:left;vertical-align:top;padding:.52rem .66rem;border-bottom:1px solid var(--line)}
+th{font-size:.73rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap}
+td.num,th.num{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.total td{border-top:2px solid var(--line);border-bottom:0;font-weight:600}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:.9rem 1.1rem;border-radius:0 6px 6px 0;margin:1.2rem 0;max-width:74ch}
+.callout.warn{border-color:var(--warn);background:var(--warn-soft)}
+.callout.risk{border-color:var(--risk);background:var(--risk-soft)}
+.callout.ok{border-color:var(--ok);background:var(--ok-soft)}
+.callout p{margin:.3rem 0}
+.callout .eyebrow{margin-bottom:.2rem}
+.grid{display:grid;gap:.9rem;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));margin:1rem 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.95rem 1.05rem;min-width:0}
+.card h4{margin-top:0}
+.card .big{font-family:var(--font-mono);font-size:1.5rem;font-weight:500;margin:.3rem 0 .1rem;font-variant-numeric:tabular-nums}
+.card .sub{font-size:.85rem;color:var(--muted)}
+.tag{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:.15rem .5rem;border-radius:999px;background:var(--ink-soft);color:var(--muted)}
+.tag.accent{background:var(--accent-soft);color:var(--accent)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tag.risk{background:var(--risk-soft);color:var(--risk)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:1rem 1.1rem;margin:1rem 0;overflow-x:auto}
+.chart h4{margin:0 0 .2rem}
+.chart .cap{font-size:.85rem;color:var(--muted);margin:0 0 .8rem}
+.chart svg{display:block;width:100%;height:auto;max-width:100%}
+.chart .leg{display:flex;gap:1.2rem;font-size:.82rem;color:var(--muted);margin:.5rem 0 0}
+.chart .leg span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:.4rem;vertical-align:-1px}
+.chart .leg .cd::before{background:var(--cd)}
+.chart .leg .lj::before{background:var(--lj)}
+details{margin:.4rem 0 0}
+details summary{cursor:pointer;font-size:.82rem;color:var(--muted)}
+.bar-lbl{font-family:var(--font-body);font-size:13px;fill:var(--fg)}
+.bar-val{font-family:var(--font-mono);font-size:12.5px;fill:var(--fg);font-variant-numeric:tabular-nums}
+.bar-sub{font-family:var(--font-body);font-size:11.5px;fill:var(--muted)}
+.track{fill:var(--seq-track)}
+.seqbar{fill:var(--seq)}
+.cdbar{fill:var(--cd)} .ljbar{fill:var(--lj)}
+.gapline{stroke:var(--surface);stroke-width:2}
+.axis{stroke:var(--line);stroke-width:1}
+.steps{counter-reset:s;list-style:none;padding:0;max-width:74ch}
+.steps li{counter-increment:s;display:grid;grid-template-columns:1.9rem 1fr;gap:.6rem;padding:.6rem 0;border-bottom:1px dashed var(--line)}
+.steps li::before{content:counter(s);font-family:var(--font-mono);color:var(--accent);font-weight:600}
+.steps li:last-child{border-bottom:0}
+.road{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem;margin:1rem 0}
+.road .card{border-top:3px solid var(--line)}
+.road .card.now{border-top-color:var(--warn)}
+.road .card.mvp{border-top-color:var(--accent)}
+.road .card.core{border-top-color:var(--ok)}
+.road .card.bg{border-top-color:var(--muted)}
+.road .when{font-family:var(--font-mono);font-size:.8rem;color:var(--muted)}
+.road ul{font-size:.88rem;padding-left:1.1rem}
+pre.mermaid{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.8rem;overflow-x:auto}
+small{color:var(--muted)}
+a{color:var(--accent)}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* diagrama do check antecipado (SVG do grupo, classes originais mapeadas para os tokens desta página) */
+.diagram{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;margin:1rem 0}
+.diagram svg{display:block;width:100%;min-width:640px;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;font-size:13px;color:var(--muted);align-items:center;margin:.6rem 0}
+.legend>span{display:inline-flex;align-items:center;gap:7px}
+.k{display:inline-block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:4px;color:var(--fg)}
+.k.rule{background:var(--surface);border:1px solid var(--line)}
+.k.ai{background:var(--dg-ai);color:var(--dg-ai-line)}
+.k.human{background:var(--dg-hu);color:var(--dg-hu-line)}
+.sw{display:inline-block;width:22px;height:14px;border-radius:3px}
+.sw.sun{border:2px solid var(--dg-ai-line);background:var(--surface)}
+.sw.lock{border:1.5px dashed var(--dg-lock-line);background:var(--surface)}
+.sw.later{border:1.5px dashed var(--muted);background:var(--surface)}
+.box{fill:var(--surface);stroke:var(--line);stroke-width:1.2}
+.box.sun{stroke:var(--dg-ai-line);stroke-width:2}
+.box.ai{fill:var(--dg-ai);stroke:var(--dg-ai-line);stroke-width:2}
+.box.human{fill:var(--dg-hu);stroke:var(--dg-hu-line);stroke-width:1.2}
+.box.ctx{fill:var(--dg-ai);stroke:none}
+.box.lock{fill:var(--dg-lock);stroke:var(--dg-lock-line);stroke-width:1.5;stroke-dasharray:5 4}
+.box.later{fill:var(--surface);stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
+.box.src{fill:var(--bg);stroke:var(--line)}
+.box.band{fill:var(--bg);stroke:var(--line)}
+.dia{fill:var(--surface);stroke:var(--line);stroke-width:1.2}
+.dia.sun{stroke:var(--dg-ai-line);stroke-width:2}
+.t{fill:var(--fg);font-family:var(--font-display);font-size:14px;font-weight:600}
+.s{fill:var(--muted);font-family:var(--font-body);font-size:11.5px}
+.lbl{fill:var(--muted);font-family:var(--font-mono);font-size:11px}
+.yes{fill:var(--dg-hu-line);font-family:var(--font-mono);font-size:11px;font-weight:500}
+.no{fill:var(--dg-lock-line);font-family:var(--font-mono);font-size:11px;font-weight:500}
+.edge{fill:none;stroke:var(--muted);stroke-width:1.4}
+.edge.dash{stroke-dasharray:4 4}
+.ah{fill:var(--muted)}
+.tagr{stroke:none}
+.tagr.rule{fill:var(--bg);stroke:var(--line);stroke-width:1}
+.tagr.ai,.tagr.human{fill:var(--surface)}
+.tagt{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.05em}
+.tagt.rule{fill:var(--fg)} .tagt.ai{fill:var(--dg-ai-line)} .tagt.human{fill:var(--dg-hu-line)}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Formação FDE · Barte · 14/11/2026 · Grupo 3 · checkpoint 1 e 2</div>
+  <h1>Já Chegou: o CFO pediu para parar de pagar atrasado. O dado diz que pagamos quatro vezes mais errado.</h1>
+  <p class="lead">Diagnóstico do contas a pagar da Já Chegou: análise exploratória da base, leitura do problema de negócio, hipóteses confirmadas pelo dossiê, e a solução em frentes com um roteiro que entrega o pedido do CFO em uma semana sem abandonar a perda maior.</p>
+  <div class="meta">
+    <span>Grupo 3</span>
+    <span>Fontes: base <span class="mono">dados/</span> do repositório da formação (80 notas), dossiê pós-reunião (Pack 2) e slides de sábado</span>
+    <span>Material de estudo · a Já Chegou é uma empresa fictícia</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Seções">
+  <a href="#resumo">Resumo</a>
+  <a href="#eda">1 · Análise da base</a>
+  <a href="#problema">2 · O problema</a>
+  <a href="#hipoteses">3 · Hipóteses</a>
+  <a href="#solucao">4 · Solução e frentes</a>
+  <a href="#roadmap">5 · Roadmap</a>
+  <a href="#fluxo">6 · Fluxo do check antecipado</a>
+  <a href="#riscos">7 · Riscos e premissas</a>
+</nav>
+
+<h2 id="resumo">Resumo para o CFO</h2>
+<div class="grid">
+  <div class="card"><div class="eyebrow">Pagar errado · P1</div><div class="big">R$ 543 mil</div><div class="sub">por mês, pago sem mercadoria correspondente. Zero recuperado em todos os meses</div></div>
+  <div class="card"><div class="eyebrow">Pagar atrasado · P2</div><div class="big">R$ 122 mil</div><div class="sub">por mês em juros e multa. O pedido original do projeto</div></div>
+  <div class="card"><div class="eyebrow">Match automático hoje</div><div class="big">0,7% · 0,4%</div><div class="sub">CD · loja. Quase toda nota passa por conferência manual</div></div>
+  <div class="card"><div class="eyebrow">Custo do time que opera · P4</div><div class="big">R$ 45 mil</div><div class="sub">P1 + P2 valem quase 15 vezes isso</div></div>
+</div>
+<div class="callout ok">
+  <div class="eyebrow">Em uma frase</div>
+  <p>A nota é paga antes de ser conferida, porque a lista de pagamento do dia é montada antes de o cruzamento terminar. Resolver isso move as duas maiores perdas de uma vez. A proposta: <strong>entregar em uma semana o que o CFO pediu</strong> (lista do dia automática, com alçadas que tiram ele da aprovação de tudo) <strong>e, em paralelo, atacar a causa</strong> (conferir a nota antes de a mercadoria chegar), que é onde estão os R$ 543 mil.</p>
+</div>
+
+<h2 id="eda">1 · Análise exploratória da base</h2>
+<p>A base do repositório traz 80 notas fiscais pendentes de check, com ordens de compra, recebimentos, cadastro de produtos, histórico de notas lançadas e pagamentos avulsos. É uma amostra de uma fila de check, não um mês inteiro. Os totais do mês vêm do dossiê e estão marcados como tal.</p>
+
+<h3>Duas empresas dentro da mesma empresa</h3>
+<div class="chart">
+  <h4>Lojas geram o número de notas; CDs concentram o dinheiro</h4>
+  <p class="cap">Participação de cada origem nas 80 notas da base, por quantidade e por valor. Em % de cada total.</p>
+  <svg viewBox="0 0 760 150" role="img" aria-label="Duas barras segmentadas: por quantidade de notas, lojas 56% e CDs 44%; por valor, CDs 91,5% e lojas 8,5%.">
+    <text class="bar-lbl" x="0" y="34">Notas (80)</text>
+    <rect class="ljbar" x="150" y="20" width="336" height="22" rx="3"><title>Lojas escuras: 45 notas (56%)</title></rect>
+    <rect class="cdbar" x="488" y="20" width="262" height="22" rx="3"><title>Centros de distribuição: 35 notas (44%)</title></rect>
+    <line class="gapline" x1="487" y1="18" x2="487" y2="44"/>
+    <text class="bar-val" x="160" y="36" style="fill:#fff">45 notas · 56%</text>
+    <text class="bar-val" x="498" y="36" style="fill:#fff">35 · 44%</text>
+
+    <text class="bar-lbl" x="0" y="94">Valor (R$ 1,29 mi)</text>
+    <rect class="ljbar" x="150" y="80" width="51" height="22" rx="3"><title>Lojas escuras: R$ 109.480 (8,5%)</title></rect>
+    <rect class="cdbar" x="203" y="80" width="547" height="22" rx="3"><title>Centros de distribuição: R$ 1.179.002 (91,5%)</title></rect>
+    <line class="gapline" x1="202" y1="78" x2="202" y2="104"/>
+    <text class="bar-val" x="213" y="96" style="fill:#fff">R$ 1.179 mil · 91,5%</text>
+    <text class="bar-sub" x="150" y="122">lojas: 8,5% do valor · R$ 109 mil (barra laranja à esquerda)</text>
+    <line class="axis" x1="150" y1="135" x2="750" y2="135"/>
+    <text class="bar-sub" x="150" y="148">0%</text><text class="bar-sub" x="440" y="148" text-anchor="middle">50%</text><text class="bar-sub" x="750" y="148" text-anchor="end">100%</text>
+  </svg>
+  <div class="leg"><span class="lj">24 lojas escuras</span><span class="cd">4 centros de distribuição</span></div>
+  <details><summary>Dados da base, em tabela</summary>
+  <div class="tablewrap"><table>
+  <thead><tr><th>Origem</th><th class="num">Notas</th><th class="num">Valor (R$)</th><th class="num">% do valor</th><th class="num">Ticket médio</th><th class="num">Com sinal</th></tr></thead>
+  <tbody>
+  <tr><td>4 centros de distribuição</td><td class="num">35</td><td class="num">1.179.002</td><td class="num">91,5%</td><td class="num">33.686</td><td class="num">29 notas</td></tr>
+  <tr><td>24 lojas escuras</td><td class="num">45</td><td class="num">109.480</td><td class="num">8,5%</td><td class="num">2.433</td><td class="num">36 notas</td></tr>
+  <tr class="total"><td>Total</td><td class="num">80</td><td class="num">1.288.482</td><td class="num">100%</td><td class="num">16.106</td><td class="num">65 notas</td></tr>
+  </tbody></table></div>
+  </details>
+</div>
+<div class="callout">
+  <div class="eyebrow">O que isso significa</div>
+  <p>São duas empresas dentro da mesma empresa, e cada uma pede uma solução diferente. <strong>As lojas geram o número de notas</strong>, logo o custo de operar e as 400 propostas por dia. <strong>Os CDs concentram o dinheiro</strong>, logo o risco de pagar errado. Nenhuma nota de loja passa de R$ 5 mil; todas as 45 cabem na faixa em que a regra poderia liberar sozinha. As 5 notas acima de R$ 100 mil são todas de CD e valem metade do lote.</p>
+</div>
+<p>O dossiê confirma a direção com o volume do mês inteiro: 9,5 mil notas de loja contra 1,9 mil de CD (83% da quantidade é loja), mas o ticket médio é de R$ 1,3 mil na loja contra R$ 11,8 mil no CD. Multiplicando, o CD responde por cerca de 64% do valor mensal e a loja por 36%. A amostra da base acentua a concentração (91,5% no CD), mas a leitura é a mesma: <strong>volume numa ponta, valor na outra.</strong></p>
+
+<h3>Metade do dinheiro está em cinco notas</h3>
+<div class="chart">
+  <h4>Valor do lote por faixa da régua de alçadas</h4>
+  <p class="cap">As 80 notas agrupadas pelos tetos da régua (R$ 5 mil, R$ 20 mil, R$ 100 mil). Barra = valor em R$; o número de notas vai ao lado.</p>
+  <svg viewBox="0 0 760 190" role="img" aria-label="Barras horizontais do valor por faixa: acima de 100 mil 642,6 mil reais em 5 notas; 5 a 20 mil 311,5 mil em 24 notas; 20 a 100 mil 224,9 mil em 6 notas; até 5 mil 109,5 mil em 45 notas.">
+    <text class="bar-lbl" x="0" y="30">Acima de R$ 100 mil</text><rect class="track" x="200" y="16" width="550" height="20" rx="3"/><rect class="seqbar" x="200" y="16" width="550" height="20" rx="3"><title>R$ 642.601 · 5 notas · 49,9% do lote</title></rect><text class="bar-val" x="210" y="31" style="fill:#fff">R$ 642,6 mil · 5 notas · 49,9%</text>
+    <text class="bar-lbl" x="0" y="72">R$ 5 mil a 20 mil</text><rect class="track" x="200" y="58" width="550" height="20" rx="3"/><rect class="seqbar" x="200" y="58" width="267" height="20" rx="3"><title>R$ 311.488 · 24 notas · 24,2%</title></rect><text class="bar-val" x="475" y="73">R$ 311,5 mil · 24 notas · 24,2%</text>
+    <text class="bar-lbl" x="0" y="114">R$ 20 mil a 100 mil</text><rect class="track" x="200" y="100" width="550" height="20" rx="3"/><rect class="seqbar" x="200" y="100" width="193" height="20" rx="3"><title>R$ 224.913 · 6 notas · 17,5%</title></rect><text class="bar-val" x="401" y="115">R$ 224,9 mil · 6 notas · 17,5%</text>
+    <text class="bar-lbl" x="0" y="156">Até R$ 5 mil</text><rect class="track" x="200" y="142" width="550" height="20" rx="3"/><rect class="seqbar" x="200" y="142" width="94" height="20" rx="3"><title>R$ 109.480 · 45 notas · 8,5% · todas de loja</title></rect><text class="bar-val" x="302" y="157">R$ 109,5 mil · 45 notas · 8,5% · todas de loja</text>
+    <line class="axis" x1="200" y1="175" x2="750" y2="175"/>
+    <text class="bar-sub" x="200" y="188">0</text><text class="bar-sub" x="750" y="188" text-anchor="end">R$ 642,6 mil</text>
+  </svg>
+  <details><summary>Dados, em tabela</summary>
+  <div class="tablewrap"><table>
+  <thead><tr><th>Faixa</th><th class="num">Notas</th><th class="num">Valor (R$)</th><th class="num">% do lote</th><th>Quem decide hoje</th></tr></thead>
+  <tbody>
+  <tr><td>Até R$ 5 mil</td><td class="num">45</td><td class="num">109.480</td><td class="num">8,5%</td><td>CFO assina sem olhar</td></tr>
+  <tr><td>R$ 5 mil a 20 mil</td><td class="num">24</td><td class="num">311.488</td><td class="num">24,2%</td><td>CFO aprova</td></tr>
+  <tr><td>R$ 20 mil a 100 mil</td><td class="num">6</td><td class="num">224.913</td><td class="num">17,5%</td><td>CFO aprova</td></tr>
+  <tr><td>Acima de R$ 100 mil</td><td class="num">5</td><td class="num">642.601</td><td class="num">49,9%</td><td>CFO revisa caso a caso</td></tr>
+  </tbody></table></div>
+  </details>
+</div>
+<p>Concentração do lote: as 5 maiores notas valem 49,9%, as 10 maiores 65,3%, as 20 maiores 79,1%. Cinco fornecedores respondem por 79% do valor. Isso é o que torna a alçada por valor eficiente: <strong>rigor máximo em poucas notas cobre a maior parte do dinheiro; a regra pode liberar as muitas notas pequenas.</strong></p>
+
+<h3>Onde está a exposição no lote</h3>
+<div class="chart">
+  <h4>Valor das notas por sinal encontrado no cruzamento nota × ordem × recebido</h4>
+  <p class="cap">Uma nota pode acender mais de um sinal, então as barras somam mais que o lote. 65 das 80 notas (82% do valor) têm ao menos um sinal.</p>
+  <svg viewBox="0 0 760 420" role="img" aria-label="Barras horizontais do valor das notas por tipo de sinal, da maior para a menor: falta ou quantidade menor 393,8 mil; duplicidade 201,3 mil; item sem cadastro 193 mil; item fora da ordem 192,6 mil; caixa como unidade 131,4 mil; nota sem ordem 118,3 mil; sem recebimento 116,2 mil; pago fora do fluxo 22,4 mil; fornecedor bloqueado 18,2 mil.">
+    <g><text class="bar-lbl" x="0" y="28">E1 / E3 · falta ou qtd. menor</text><rect class="track" x="230" y="14" width="520" height="18" rx="3"/><rect class="seqbar" x="230" y="14" width="520" height="18" rx="3"><title>18 notas · R$ 393.769 · 30,6%</title></rect><text class="bar-val" x="240" y="27" style="fill:#fff">R$ 393,8 mil · 18 notas</text></g>
+    <g><text class="bar-lbl" x="0" y="70">E6 · duplicidade</text><rect class="track" x="230" y="56" width="520" height="18" rx="3"/><rect class="seqbar" x="230" y="56" width="266" height="18" rx="3"><title>9 notas · R$ 201.269 · 15,6%</title></rect><text class="bar-val" x="504" y="69">R$ 201,3 mil · 9</text></g>
+    <g><text class="bar-lbl" x="0" y="112">E8 · item sem cadastro</text><rect class="track" x="230" y="98" width="520" height="18" rx="3"/><rect class="seqbar" x="230" y="98" width="255" height="18" rx="3"><title>9 notas · R$ 193.037 · 15,0%</title></rect><text class="bar-val" x="493" y="111">R$ 193,0 mil · 9</text></g>
+    <g><text class="bar-lbl" x="0" y="154">E2 · item fora da ordem</text><rect class="track" x="230" y="140" width="520" height="18" rx="3"/><rect class="seqbar" x="230" y="140" width="254" height="18" rx="3"><title>9 notas · R$ 192.586 · 14,9%</title></rect><text class="bar-val" x="492" y="153">R$ 192,6 mil · 9</text></g>
+    <g><text class="bar-lbl" x="0" y="196">E4 · caixa como unidade</text><rect class="track" x="230" y="182" width="520" height="18" rx="3"/><rect class="seqbar" x="230" y="182" width="174" height="18" rx="3"><title>9 notas · R$ 131.438 · 10,2% · sobrepreço de R$ 40,5 mil</title></rect><text class="bar-val" x="412" y="195">R$ 131,4 mil · 9</text></g>
+    <g><text class="bar-lbl" x="0" y="238">E5 · nota sem ordem</text><rect class="track" x="230" y="224" width="520" height="18" rx="3"/><rect class="seqbar" x="230" y="224" width="156" height="18" rx="3"><title>19 notas · R$ 118.325 · 9,2%</title></rect><text class="bar-val" x="394" y="237">R$ 118,3 mil · 19</text></g>
+    <g><text class="bar-lbl" x="0" y="280">Sem recebimento localizável</text><rect class="track" x="230" y="266" width="520" height="18" rx="3"/><rect class="seqbar" x="230" y="266" width="153" height="18" rx="3"><title>18 notas · R$ 116.172 · 9,0%</title></rect><text class="bar-val" x="391" y="279">R$ 116,2 mil · 18</text></g>
+    <g><text class="bar-lbl" x="0" y="322">E7 · pago fora do fluxo</text><rect class="track" x="230" y="308" width="520" height="18" rx="3"/><rect class="seqbar" x="230" y="308" width="30" height="18" rx="3"><title>9 notas · R$ 22.413 · 1,7%</title></rect><text class="bar-val" x="268" y="321">R$ 22,4 mil · 9</text></g>
+    <g><text class="bar-lbl" x="0" y="364">Fornecedor bloqueado</text><rect class="track" x="230" y="350" width="520" height="18" rx="3"/><rect class="seqbar" x="230" y="350" width="24" height="18" rx="3"><title>1 nota · R$ 18.192 · 1,4%</title></rect><text class="bar-val" x="262" y="363">R$ 18,2 mil · 1</text></g>
+    <line class="axis" x1="230" y1="392" x2="750" y2="392"/>
+    <text class="bar-sub" x="230" y="406">0</text><text class="bar-sub" x="750" y="406" text-anchor="end">R$ 393,8 mil</text>
+  </svg>
+</div>
+<p>Somando sem dupla contagem e por critério conservador (duplicidade e pagamento por fora contam a nota inteira; falta e quantidade menor contam só a diferença; caixa conta só o sobrepreço), a <strong>exposição do lote é de R$ 357,7 mil, ou 27,8%</strong>. A maior nota do lote, R$ 144,5 mil, é uma duplicata com chave idêntica a uma nota já lançada.</p>
+<div class="callout warn">
+  <div class="eyebrow">Como usar esses números na frente do CFO</div>
+  <p>A base é uma fila de check balanceada por tipo de exceção, então a taxa de 82% de notas com sinal não é a taxa da empresa. O que é legítimo levar é a <strong>severidade por tipo</strong>: caixa lida como unidade cobra quatro vezes o preço certo; duplicidade custa a nota inteira; falta física custa só a diferença. A <strong>frequência</strong> vem do dossiê, que mede R$ 543 mil por mês pagos sem mercadoria. As duas fontes se completam: severidade da base, frequência do dossiê.</p>
+</div>
+
+<h2 id="problema">2 · O problema de negócio</h2>
+<h3>O fluxo real, confirmado pelo cliente</h3>
+<p>O dossiê descreve duas etapas sem integração entre elas, e a segunda começa antes de a primeira terminar. A conferência da nota e a decisão de caixa correm em paralelo, não em sequência.</p>
+<pre class="mermaid">
+flowchart LR
+  F[Forecast] --> OC[Ordem de compra<br/>20% ainda sobe por CSV manual]
+  OC --> FOR[Fornecedor<br/>60% recebe por e-mail automatico]
+  FOR --> NF[Nota emitida<br/>antes de entregar]
+  NF --> CD[CD: doca agendada em planilha]
+  NF --> LJ[Loja: recebe a qualquer hora, app]
+  NF --> SEFAZ[Nota entra pela SEFAZ]
+  SEFAZ --> CRUZ{Cruzamento manual<br/>ordem x nota x recebido}
+  CD --> CRUZ
+  LJ --> CRUZ
+  CRUZ -->|match 0,7% / 0,4%| OK[Pronta para pagar]
+  CRUZ -->|a maioria| DIV[Divergencia -> ordem complementar<br/>2 dias a 3 meses, 3 areas]
+  LISTA[Lista do dia ~400 propostas<br/>ERP + email + WhatsApp] --> APROV[CFO aprova 16h-18h<br/>sem teto]
+  OK --> LISTA
+  APROV --> BANCO[Pago um a um no banco<br/>baixado um a um no ERP]
+  EMERG[Compra emergencial da loja<br/>paga fora do fluxo] -.->|aparece depois| LISTA
+  style CRUZ fill:#fbeedb,stroke:#b45309,color:#17202a
+  style DIV fill:#fbe4e1,stroke:#b42318,color:#17202a
+  style EMERG fill:#fbe4e1,stroke:#b42318,color:#17202a
+  style APROV fill:#fbeedb,stroke:#b45309,color:#17202a
+</pre>
+<div class="callout risk">
+  <div class="eyebrow">O detalhe que explica a ordem das perdas</div>
+  <p>A lista de pagamento do dia é montada <strong>antes</strong> de o cruzamento terminar. O fluxo de caixa não espera o fluxo de conferência. É por isso que pagar errado (R$ 543 mil) é maior que pagar atrasado (R$ 122 mil): a pressão para pagar no prazo empurra notas não conferidas para o lote do dia. Na voz do controller: "quando a gente olha a nota, a mercadoria já entrou."</p>
+</div>
+
+<h3>As quatro perdas, com número real</h3>
+<div class="chart">
+  <h4>Perdas mensais do contas a pagar, em R$ (Anexo 2 do dossiê)</h4>
+  <p class="cap">Média de janeiro a setembro. Ruptura (P3) é medida em pontos percentuais de disponibilidade e não cabe neste eixo; está no card abaixo.</p>
+  <svg viewBox="0 0 760 150" role="img" aria-label="Barras horizontais das perdas mensais: pagar errado 543 mil reais, pagar atrasado 122 mil, custo de operar 45 mil.">
+    <text class="bar-lbl" x="0" y="30">P1 · Pagar errado</text><rect class="track" x="200" y="16" width="550" height="20" rx="3"/><rect class="seqbar" x="200" y="16" width="550" height="20" rx="3"><title>R$ 543 mil/mês · faixa R$ 136 mil a R$ 1,8 milhão</title></rect><text class="bar-val" x="210" y="31" style="fill:#fff">R$ 543 mil · faixa 136 mil a 1,8 mi</text>
+    <text class="bar-lbl" x="0" y="72">P2 · Pagar atrasado</text><rect class="track" x="200" y="58" width="550" height="20" rx="3"/><rect class="seqbar" x="200" y="58" width="124" height="20" rx="3"><title>R$ 122 mil/mês · faixa R$ 23 mil a R$ 420 mil</title></rect><text class="bar-val" x="332" y="73">R$ 122 mil · faixa 23 a 420 mil</text>
+    <text class="bar-lbl" x="0" y="114">P4 · Custo de operar</text><rect class="track" x="200" y="100" width="550" height="20" rx="3"/><rect class="seqbar" x="200" y="100" width="46" height="20" rx="3"><title>R$ 45 mil/mês · time de conciliação e pagamento</title></rect><text class="bar-val" x="254" y="115">R$ 45 mil</text>
+    <line class="axis" x1="200" y1="133" x2="750" y2="133"/>
+    <text class="bar-sub" x="200" y="146">0</text><text class="bar-sub" x="750" y="146" text-anchor="end">R$ 543 mil</text>
+  </svg>
+  <details><summary>Dados, em tabela</summary>
+  <div class="tablewrap"><table>
+  <thead><tr><th>Perda</th><th>Como se mede</th><th class="num">Média/mês</th><th>Faixa jan–set</th></tr></thead>
+  <tbody>
+  <tr><td>P1 · Pagar errado</td><td>Pago sem mercadoria correspondente, menos o recuperado</td><td class="num">R$ 543 mil</td><td>R$ 136 mil a R$ 1,8 milhão</td></tr>
+  <tr><td>P2 · Pagar atrasado</td><td>Juros e multas a fornecedores</td><td class="num">R$ 122 mil</td><td>R$ 23 mil a R$ 420 mil</td></tr>
+  <tr><td>P3 · Ruptura por atraso</td><td>Disponibilidade perdida por bloqueio de fornecedor</td><td class="num">1,2 p.p.</td><td>0 a 4,6 pontos</td></tr>
+  <tr><td>P4 · Custo de operar</td><td>Time de conciliação e pagamento</td><td class="num">R$ 45 mil</td><td>—</td></tr>
+  </tbody></table></div>
+  </details>
+</div>
+<div class="grid">
+  <div class="card"><div class="eyebrow">P1 + P2</div><div class="big">R$ 665 mil</div><div class="sub">por mês, quase quinze vezes o custo do time que opera (R$ 45 mil)</div></div>
+  <div class="card"><div class="eyebrow">P3 · Ruptura por atraso</div><div class="big">1,2 p.p.</div><div class="sub">de disponibilidade perdida, faixa de 0 a 4,6 pontos. Instável; argumento de proteção de receita, não meta principal</div></div>
+  <div class="card"><div class="eyebrow">Abril</div><div class="big">~40%</div><div class="sub">do P1 do período concentrado num mês só. Perguntar ao controller o que houve: pode mostrar a causa com mais nitidez que a média</div></div>
+</div>
+
+<div class="callout ok">
+  <div class="eyebrow">A frase do checkpoint 1</div>
+  <p>As lojas são um problema de volume e os CDs são um problema de valor. Automatizar sem separar os dois trata a nota de R$ 500 com o mesmo rigor da nota de R$ 144 mil, e é por isso que hoje a casa paga juros nas duas. <strong>A esteira é a mesma; a alçada e a profundidade da conferência não podem ser.</strong></p>
+</div>
+
+<h3>Reformulação do pedido do CFO</h3>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>Texto</th></tr></thead>
+<tbody>
+<tr><td>Como o CFO trouxe</td><td>Automatizar o lançamento, o pagamento e a baixa, para parar de digitar e parar de pagar juros</td></tr>
+<tr><td>Como o grupo propõe</td><td>Garantir que toda nota chegue ao vencimento já conferida contra o pedido e o recebimento, com alçada por valor, para que pagar vire consequência e não decisão diária do CFO</td></tr>
+<tr><td>Por que move mais o número</td><td>Automatizar o pagamento de uma nota que não casou é pagar errado mais rápido. Conferir antes move P1 (R$ 543 mil) e P2 (R$ 122 mil) ao mesmo tempo, porque nota conferida chega pronta para pagar no prazo</td></tr>
+<tr><td>Como levar ao CFO</td><td>Mantendo o número dele como entrega da primeira semana e acrescentando o nosso como causa: os juros caem porque a nota deixa de parar. E tirando ele da aprovação de tudo, que é o que ele mesmo diz que quer</td></tr>
+</tbody></table></div>
+
+<h2 id="hipoteses">3 · Hipóteses que baseiam a solução</h2>
+<p>Levantadas antes do dossiê, a partir do briefing e da base. Todas as cinco foram confirmadas pelo texto do dossiê, e são elas que justificam cada peça da solução.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Hipótese</th><th>Veredito</th><th>Evidência no dossiê</th><th>O que isso pede na solução</th></tr></thead>
+<tbody>
+<tr><td>A aprovação do CFO é gargalo</td><td><span class="tag ok">confirmado</span></td><td>Ele aprova tudo, sem teto, desde que um boleto foi pago duas vezes. Só abaixo de R$ 5 mil assina sem olhar; acima de R$ 100 mil revisa caso a caso — os mesmos tetos da régua de alçadas do kit de domingo</td><td>Régua de aprovação por valor: regra até R$ 5 mil, time até R$ 100 mil, CFO acima disso e em qualquer divergência</td></tr>
+<tr><td>Ninguém mede pagamento a mais ou duplicado</td><td><span class="tag risk">confirmado, pior que o suposto</span></td><td>Paga-se em média R$ 543 mil/mês sem mercadoria correspondente, e zero foi recuperado em qualquer mês do período</td><td>Check antecipado: conferir antes de aceitar, porque depois de aceita nada volta. Bloqueio de duplicidade no sistema, não no prompt</td></tr>
+<tr><td>A loja compra em emergência e paga por fora antes da nota chegar</td><td><span class="tag ok">confirmado</span></td><td>Texto literal: "compras emergenciais das lojas são pagas fora do fluxo e aparecem depois"</td><td>Cruzar pix e boletos avulsos da loja antes de pagar (E7) e estruturar o pedido por WhatsApp antes de a nota chegar (E5)</td></tr>
+<tr><td>Caixa cobrada como unidade passa sem ninguém ver</td><td><span class="tag ok">confirmado</span></td><td>Exceção 4 do Anexo 4, com o mesmo padrão de ~300% de diferença de preço que a base mostrou; "o WMS não converte caixa em unidade"</td><td>Conversão pelo fator de caixa do cadastro como regra fixa, sem IA; IA só quando falta o fator</td></tr>
+<tr><td>Mercadoria entra sob pressão comercial, com item sem cadastro</td><td><span class="tag ok">confirmado</span></td><td>"Item sem cadastro trava a ordem, mas a mercadoria entra mesmo assim" — gerente de compras</td><td>E8 aceito só com divergência explícita e aprovação do CFO; abertura do cadastro vira parte do fluxo, não um pedido paralelo</td></tr>
+</tbody></table></div>
+
+<h2 id="solucao">4 · Solução: as quatro frentes e a ordem</h2>
+<p>O próprio time da Já Chegou já discute quatro frentes, sem consenso de ordem. A escolha do grupo não é propor de fora, é ordenar o que o cliente já pôs na mesa, usando a régua de três eixos: retorno a partir da linha de base, prazo até o primeiro valor, esforço.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Frente</th><th>O que faz</th><th>Perda que move</th><th>Retorno</th><th>Prazo até o 1º valor</th><th>Esforço</th><th>Ordem</th></tr></thead>
+<tbody>
+<tr><td><strong>1 · Check antecipado e devolução</strong></td><td>Confronta a nota com a ordem antes de a mercadoria chegar; a doca recebe, recebe parcial ou recusa; divergência vira recusa ou devolução</td><td>P1 direto, P2 indireto</td><td>Alto</td><td>Semanas: precisa da SEFAZ, da doca e da camada de contexto</td><td>Médio</td><td class="num">1º</td></tr>
+<tr><td><strong>3 · Priorização de caixa e aprovação</strong></td><td>Lista do dia automática, regras de prioridade, alçadas, pagamento em lote quando o banco permitir</td><td>P2 e o pedido explícito do CFO; P4</td><td>Médio</td><td>Dias: o CSV de títulos já está liberado</td><td>Baixo</td><td class="num">1º, em paralelo</td></tr>
+<tr><td><strong>2 · Conciliação ordem × nota × recebido</strong></td><td>Trata as exceções 1 a 6 depois do recebimento, com conversão de unidade</td><td>P1, no que já entrou</td><td>Médio</td><td>Semanas</td><td>Médio</td><td class="num">2º</td></tr>
+<tr><td><strong>4 · Cadastro e ordem complementar</strong></td><td>Ataca as exceções 2, 5 e 8 na origem; depende de compras, controller e comercial</td><td>P1, na causa raiz</td><td>Alto, a longo prazo</td><td>Meses: três áreas</td><td>Alto</td><td class="num">fundo</td></tr>
+</tbody></table></div>
+<div class="callout">
+  <div class="eyebrow">Leitura de prioridade do grupo</div>
+  <p>Por retorno, a Frente 1 move diretamente P1 (R$ 543 mil) e indiretamente P2, porque nota conferida chega pronta para pagar no prazo. Por prazo até o primeiro valor, a Frente 3 é a mais rápida de montar, mas isolada ela só move o pedido explícito do CFO, não a maior perda. A aposta de ordem: <strong>Frente 1 primeiro, Frente 3 em paralelo como "trilho de pagamento" que recebe o que a Frente 1 aprova, Frente 2 como rede de segurança nas primeiras semanas, Frente 4 como projeto de fundo que não bloqueia as três primeiras.</strong></p>
+</div>
+
+<h3>Quem faz o quê</h3>
+<div class="grid">
+  <div class="card"><span class="k rule">Regra</span><h4>Fecha os casos claros</h4><p class="sub">Acha a ordem mesmo sem o número do pedido, converte caixa em unidade, aplica a tolerância, bloqueia chave duplicada. Aprova sozinha só o que bate e vale até R$ 5 mil.</p></div>
+  <div class="card"><span class="k ai">IA</span><h4>Interpreta o resto</h4><p class="sub">Só entra quando a regra não fecha: diz qual das 8 exceções é, o que a doca deve fazer, e explica com o número. Estrutura o pedido que veio por WhatsApp.</p></div>
+  <div class="card"><span class="k human">Pessoa</span><h4>Decide o que importa</h4><p class="sub">O time aprova até R$ 100 mil. O CFO fica só com o que passa disso e com o que foi aceito com divergência, em vez de aprovar tudo.</p></div>
+</div>
+
+<h2 id="roadmap">5 · Roadmap: o pedido do CFO em uma semana, a causa em oito</h2>
+<p>A sequência respeita o que já está liberado. Hoje o único acesso concedido é a exportação diária de títulos e pagamentos do ERP, em CSV por e-mail. A captura na SEFAZ existe. Leitura no ERP foi pedida e não tem previsão; escrita não foi pedida e depende de homologação. O roadmap começa pelo que dá para fazer com isso.</p>
+<div class="road">
+  <div class="card now">
+    <div class="when">48 horas · estrada de terra</div>
+    <h4>Lista do dia já ordenada</h4>
+    <ul>
+      <li>Lê o CSV diário de títulos que já chega por e-mail</li>
+      <li>Ordena por vencimento e separa por faixa da régua: até R$ 5 mil, até R$ 100 mil, acima</li>
+      <li>Marca chave duplicada e fornecedor bloqueado antes de qualquer aprovação</li>
+      <li>Sai como planilha, sem escrever em nada; o pagamento continua um a um</li>
+    </ul>
+    <p class="sub">É a Frente 3 na versão mais crua possível. O CFO vê a fila do dia pronta no segundo dia do projeto. Nada é aprovado automaticamente ainda.</p>
+  </div>
+  <div class="card mvp">
+    <div class="when">Semana 1 · MVP · Frente 3</div>
+    <h4>Priorização de caixa e aprovação por alçada</h4>
+    <ul>
+      <li>Fila de aprovação com a régua proposta: regra até R$ 5 mil, time até R$ 100 mil, CFO acima e em divergência</li>
+      <li>Log de cada aprovação, com quem e quando</li>
+      <li>Painel do KPI: P1 + P2, sobre a linha de base jan–set do dossiê</li>
+      <li>Compra emergencial de loja cruzada com pix e boleto avulso (E7), para não pagar de novo</li>
+    </ul>
+    <p class="sub">Atende o pedido original do CFO e tira ele da aprovação de tudo. A regra só libera o que bate; o que não bate ainda cai em conferência manual.</p>
+  </div>
+  <div class="card core">
+    <div class="when">Semanas 2 a 5 · Frente 1 em modo sombra, Frente 2 como rede</div>
+    <h4>Check antecipado</h4>
+    <ul>
+      <li>Agente auditor roda sobre a nota capturada na SEFAZ, antes da chegada, e classifica E1 a E8 com justificativa</li>
+      <li>Doca alertada antes do caminhão: recusa, recebe parcial ou aceita com divergência</li>
+      <li>Duas semanas em sombra, comparando com a conferência manual; limiar de concordância assinado pelo controller</li>
+      <li>Conciliação (Frente 2) trata o que já entrou enquanto a Frente 1 não cobre tudo</li>
+    </ul>
+    <p class="sub">Precisa da credencial da SEFAZ fora do login pessoal do terceirizado, da agenda de doca e do fator de caixa no cadastro. Pedir na semana 1.</p>
+  </div>
+  <div class="card bg">
+    <div class="when">Semanas 6 a 8 · Frente 4 de fundo, fase 2 do ERP</div>
+    <h4>Causa raiz e escrita no sistema</h4>
+    <ul>
+      <li>Cadastro e ordem complementar com compras, controller e comercial</li>
+      <li>Pedido por WhatsApp estruturado antes de a nota chegar (E5)</li>
+      <li>Baixa e nota de devolução no ERP só depois da homologação, que hoje é uma cópia de março</li>
+      <li>Pagamento em lote se o banco trocar de plano; hoje não há API</li>
+    </ul>
+    <p class="sub">Nada aqui bloqueia as três primeiras frentes. Entra quando os acessos chegarem.</p>
+  </div>
+</div>
+<div class="callout warn">
+  <div class="eyebrow">Linha de base: o cuidado com setembro</div>
+  <p>O atraso caiu de 76% para 16% do valor entre janeiro e setembro, mas setembro reflete uma semana de força-tarefa manual do controller, não uma mudança de processo. A linha de base do KPI deve usar a média de janeiro a setembro (41% pago após o vencimento, R$ 122 mil de juros), não o mês mais recente. Senão o projeto começa com uma meta já "atingida" por um esforço que não se repete.</p>
+</div>
+
+<h2 id="fluxo">6 · Fluxo do check antecipado</h2>
+<p>O caminho de uma nota fiscal desde a emissão até o pagamento, na solução proposta. A ideia central: conferir a nota contra a ordem e o recebimento <strong>antes</strong> de aceitar a mercadoria, porque depois de aceita nada volta.</p>
+<div class="legend" aria-label="Legenda">
+  <span><span class="k rule">Regra</span>código, sem IA</span>
+  <span><span class="k ai">IA</span>agente interpreta e justifica</span>
+  <span><span class="k human">Pessoa</span>decide, aprova ou paga</span>
+  <span><span class="sw sun"></span>o grupo constrói no domingo</span>
+  <span><span class="sw lock"></span>trava no sistema</span>
+  <span><span class="sw later"></span>fase 2</span>
+</div>
+<div class="diagram">
+<svg viewBox="0 0 770 1005" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">Fluxograma do check antecipado</title>
+  <desc id="dsc">A nota emitida é capturada na SEFAZ e passa pela ingestão, junto com as ordens do ERP, do CSV e os pedidos feitos por WhatsApp, que a IA estrutura. O motor verifica se achou a ordem e se a nota bate com a ordem e o recebimento. Se bate, o valor decide: até R$ 5 mil é automático, de R$ 5 mil a R$ 100 mil o time aprova, acima de R$ 100 mil o CFO aprova. Se não bate, o agente classifica a exceção, a trava confere a alçada e a doca decide; o que for aceito com divergência vai para o CFO. Tudo o que foi aprovado vai para a lista do dia e para o pagamento.</desc>
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="box src" x="10" y="172" width="140" height="76" rx="8"/>
+  <text class="t" x="80" y="193" text-anchor="middle" style="font-size:12.5px">Fontes · leitura</text>
+  <text class="s" x="80" y="211" text-anchor="middle">ERP · CSV de ordens</text>
+  <text class="s" x="80" y="226" text-anchor="middle">Doca · WMS · loja</text>
+  <text class="s" x="80" y="241" text-anchor="middle">CSV de títulos</text>
+  <path class="edge" d="M150,210 H168" marker-end="url(#arr)"/>
+  <rect class="box src" x="10" y="272" width="140" height="58" rx="8"/>
+  <text class="t" x="80" y="291" text-anchor="middle" style="font-size:12.5px">Pedido por WhatsApp</text>
+  <text class="s" x="80" y="307" text-anchor="middle">loja ↔ fornecedor</text>
+  <text class="s" x="80" y="322" text-anchor="middle">baixo volume</text>
+  <path class="edge" d="M80,330 V350" marker-end="url(#arr)"/>
+  <rect class="box ai" x="10" y="352" width="140" height="62" rx="8"/>
+  <rect class="tagr ai" x="18" y="359" width="28" height="16" rx="3"/><text class="tagt ai" x="32" y="370.5" text-anchor="middle">IA</text>
+  <text class="t" x="80" y="391" text-anchor="middle" style="font-size:12.5px">Estrutura o pedido</text>
+  <text class="s" x="80" y="406" text-anchor="middle">itens, qtd., loja, data</text>
+  <path class="edge" d="M150,383 H160 V226 H168" marker-end="url(#arr)"/>
+  <rect class="box ctx" x="520" y="172" width="240" height="76" rx="8"/>
+  <text class="t" x="640" y="196" text-anchor="middle">Camada de contexto</text>
+  <text class="s" x="640" y="215" text-anchor="middle">glossário · tolerâncias · fator de caixa</text>
+  <text class="s" x="640" y="231" text-anchor="middle">régua de alçadas · casos-limite</text>
+  <path class="edge dash" d="M640,248 V366" marker-end="url(#arr)"/>
+  <text class="lbl" x="648" y="312">regras</text>
+  <path class="edge dash" d="M520,210 H432" marker-end="url(#arr)"/>
+  <rect class="box" x="170" y="20" width="260" height="44" rx="8"/>
+  <text class="t" x="300" y="47" text-anchor="middle">Fornecedor emite a NF-e</text>
+  <path class="edge" d="M300,64 V90" marker-end="url(#arr)"/>
+  <rect class="box" x="170" y="92" width="260" height="56" rx="8"/>
+  <text class="t" x="300" y="116" text-anchor="middle">Captura na SEFAZ</text>
+  <text class="s" x="300" y="135" text-anchor="middle">a nota chega antes do caminhão</text>
+  <path class="edge" d="M300,148 V178" marker-end="url(#arr)"/>
+  <rect class="box sun" x="170" y="180" width="260" height="60" rx="8"/>
+  <rect class="tagr rule" x="180" y="188" width="44" height="16" rx="3"/><text class="tagt rule" x="202" y="199.5" text-anchor="middle">REGRA</text>
+  <text class="t" x="300" y="216" text-anchor="middle">Ingestão</text>
+  <text class="s" x="300" y="232" text-anchor="middle">junta nota, ordens e recebido</text>
+  <path class="edge" d="M300,240 V254" marker-end="url(#arr)"/>
+  <polygon class="dia sun" points="175,300 300,256 425,300 300,344"/>
+  <text class="t" x="300" y="298" text-anchor="middle" style="font-size:13.5px">Achou a ordem?</text>
+  <text class="s" x="300" y="315" text-anchor="middle">ERP, CSV ou WhatsApp</text>
+  <path class="edge" d="M300,344 V362" marker-end="url(#arr)"/>
+  <text class="yes" x="308" y="358">sim</text>
+  <polygon class="dia sun" points="175,410 300,364 425,410 300,456"/>
+  <text class="t" x="300" y="406" text-anchor="middle" style="font-size:13.5px">Bate com ordem e recebido?</text>
+  <text class="s" x="300" y="423" text-anchor="middle">caixa convertida · tolerância</text>
+  <path class="edge" d="M300,456 V474" marker-end="url(#arr)"/>
+  <text class="yes" x="308" y="470">sim</text>
+  <polygon class="dia" points="175,522 300,476 425,522 300,568"/>
+  <text class="t" x="300" y="518" text-anchor="middle" style="font-size:13.5px">Valor da nota?</text>
+  <text class="s" x="300" y="535" text-anchor="middle">régua de aprovação</text>
+  <path class="edge" d="M175,522 H105 V606" marker-end="url(#arr)"/>
+  <text class="lbl" x="112" y="556">até 5 mil</text>
+  <path class="edge" d="M300,568 V606" marker-end="url(#arr)"/>
+  <text class="lbl" x="308" y="592">5 a 100 mil</text>
+  <path class="edge" d="M425,522 H470 V715 H518" marker-end="url(#arr)"/>
+  <text class="lbl" x="432" y="514">&gt; 100 mil</text>
+  <rect class="box" x="20" y="608" width="170" height="58" rx="8"/>
+  <rect class="tagr rule" x="30" y="616" width="44" height="16" rx="3"/><text class="tagt rule" x="52" y="627.5" text-anchor="middle">REGRA</text>
+  <text class="t" x="105" y="645" text-anchor="middle">Automático</text>
+  <text class="s" x="105" y="660" text-anchor="middle">até R$ 5 mil, conferida</text>
+  <rect class="box human" x="215" y="608" width="170" height="58" rx="8"/>
+  <rect class="tagr human" x="225" y="616" width="52" height="16" rx="3"/><text class="tagt human" x="251" y="627.5" text-anchor="middle">PESSOA</text>
+  <text class="t" x="300" y="645" text-anchor="middle">Time aprova</text>
+  <text class="s" x="300" y="660" text-anchor="middle">R$ 5 mil a R$ 100 mil</text>
+  <path class="edge" d="M105,666 V749 H168" marker-end="url(#arr)"/>
+  <path class="edge" d="M300,666 V722" marker-end="url(#arr)"/>
+  <rect class="box" x="170" y="724" width="260" height="50" rx="8"/>
+  <text class="t" x="300" y="746" text-anchor="middle">Lista do dia</text>
+  <text class="s" x="300" y="763" text-anchor="middle">só segue o que foi aprovado</text>
+  <path class="edge" d="M300,774 V804" marker-end="url(#arr)"/>
+  <rect class="box" x="170" y="806" width="260" height="50" rx="8"/>
+  <text class="t" x="300" y="828" text-anchor="middle">Pagamento</text>
+  <text class="s" x="300" y="845" text-anchor="middle">um a um hoje; em lote se o banco permitir</text>
+  <path class="edge" d="M300,856 V884" marker-end="url(#arr)"/>
+  <rect class="box later" x="170" y="886" width="260" height="46" rx="8"/>
+  <text class="t" x="300" y="906" text-anchor="middle">ERP: baixa e nota de devolução</text>
+  <text class="s" x="300" y="922" text-anchor="middle">depois da homologação</text>
+  <path class="edge" d="M425,300 H470 V390 H518" marker-end="url(#arr)"/>
+  <text class="no" x="434" y="292">não</text>
+  <path class="edge" d="M425,410 H495 V440 H518" marker-end="url(#arr)"/>
+  <text class="no" x="434" y="402">não</text>
+  <rect class="box ai" x="520" y="368" width="240" height="96" rx="8"/>
+  <rect class="tagr ai" x="532" y="376" width="28" height="16" rx="3"/><text class="tagt ai" x="546" y="387.5" text-anchor="middle">IA</text>
+  <text class="t" x="640" y="404" text-anchor="middle">Agente auditor</text>
+  <text class="s" x="640" y="422" text-anchor="middle">classifica a exceção (E1 a E8)</text>
+  <text class="s" x="640" y="438" text-anchor="middle">propõe a ação na doca</text>
+  <text class="s" x="640" y="454" text-anchor="middle">e escreve a justificativa</text>
+  <path class="edge" d="M640,464 V484" marker-end="url(#arr)"/>
+  <rect class="box lock" x="520" y="486" width="240" height="50" rx="8"/>
+  <text class="t" x="640" y="508" text-anchor="middle">Trava da régua</text>
+  <text class="s" x="640" y="525" text-anchor="middle">duplicidade bloqueia; ninguém paga</text>
+  <path class="edge" d="M640,536 V564" marker-end="url(#arr)"/>
+  <rect class="box human" x="520" y="566" width="240" height="84" rx="8"/>
+  <rect class="tagr human" x="532" y="574" width="52" height="16" rx="3"/><text class="tagt human" x="558" y="585.5" text-anchor="middle">PESSOA</text>
+  <text class="t" x="640" y="606" text-anchor="middle">Doca decide</text>
+  <text class="s" x="640" y="623" text-anchor="middle">alertada antes da chegada</text>
+  <text class="s" x="640" y="639" text-anchor="middle">recusa · recebe parcial · aceita</text>
+  <path class="edge" d="M640,650 V696" marker-end="url(#arr)"/>
+  <text class="lbl" x="648" y="678">aceita com divergência</text>
+  <rect class="box human" x="520" y="698" width="240" height="62" rx="8"/>
+  <rect class="tagr human" x="532" y="706" width="52" height="16" rx="3"/><text class="tagt human" x="558" y="717.5" text-anchor="middle">PESSOA</text>
+  <text class="t" x="640" y="738" text-anchor="middle">CFO aprova</text>
+  <text class="s" x="640" y="753" text-anchor="middle">&gt; R$ 100 mil ou com divergência</text>
+  <path class="edge" d="M520,749 H432" marker-end="url(#arr)"/>
+  <text class="s" x="640" y="790" text-anchor="middle">Recebe parcial: o que confere</text>
+  <text class="s" x="640" y="805" text-anchor="middle">segue pela régua de valor;</text>
+  <text class="s" x="640" y="820" text-anchor="middle">o resto vira nota de devolução.</text>
+  <text class="s" x="640" y="840" text-anchor="middle">Recusa: nada a pagar.</text>
+  <rect class="box band" x="10" y="952" width="750" height="44" rx="8"/>
+  <text class="s" x="385" y="979" text-anchor="middle" style="font-size:12px">Por baixo de tudo: log de cada proposta e decisão · eval contra casos-limite · painel do KPI (P1 + P2)</text>
+</svg>
+</div>
+
+<h3>Régua de aprovação proposta pelo grupo</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Situação da nota</th><th>Quem aprova</th></tr></thead>
+<tbody>
+<tr><td>Conferida, até R$ 5 mil</td><td><span class="k rule">Regra</span> automático</td></tr>
+<tr><td>Conferida, de R$ 5 mil a R$ 100 mil</td><td><span class="k human">Pessoa</span> alguém do time</td></tr>
+<tr><td>Conferida, acima de R$ 100 mil</td><td><span class="k human">Pessoa</span> CFO</td></tr>
+<tr><td>Aceita com divergência, qualquer valor</td><td><span class="k human">Pessoa</span> CFO</td></tr>
+<tr><td>Suspeita de duplicidade</td><td><span class="k rule">Regra</span> bloqueio; ninguém paga</td></tr>
+</tbody></table></div>
+<p class="muted"><small>Esta é a régua proposta pelo grupo para o cliente. A régua do kit de domingo, usada no eval, é outra: ela tem o nível intermediário de coordenação (R$ 20 mil a R$ 100 mil) e manda E5, E7 e E8 para a coordenação em qualquer valor.</small></p>
+
+<h3>As 8 exceções no fluxo</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Exceção</th><th>Como é detectada</th><th>O que a doca faz</th><th>Quem aprova</th></tr></thead>
+<tbody>
+<tr><td><b>E1</b> Falta física: item na nota que não chegou</td><td><span class="k rule">Regra</span> nota × contagem</td><td>Recebe parcial; o item vira nota de devolução</td><td>Régua de valor no que veio</td></tr>
+<tr><td><b>E2</b> Item trocado: item fora da ordem</td><td><span class="k rule">Regra</span> acha; <span class="k ai">IA</span> diz se é substituto</td><td>Recusa o item ou aceita com divergência</td><td>CFO, se aceitar</td></tr>
+<tr><td><b>E3</b> Quantidade menor</td><td><span class="k rule">Regra</span> nota × contagem</td><td>Recebe parcial</td><td>Régua de valor no que veio</td></tr>
+<tr><td><b>E4</b> Unidade de medida: caixa × unidade</td><td><span class="k rule">Regra</span> converte pelo fator de caixa; <span class="k ai">IA</span> quando falta o fator</td><td>Recebe; o cadastro é corrigido</td><td>Régua de valor</td></tr>
+<tr><td><b>E5</b> Nota sem ordem</td><td><span class="k rule">Regra</span> procura no ERP e no CSV; <span class="k ai">IA</span> procura nos pedidos por WhatsApp</td><td>Achou: segue como pedido. Não achou: recusa ou aceita</td><td>CFO, se aceitar sem pedido</td></tr>
+<tr><td><b>E6</b> Duplicidade: mesma compra em duas notas</td><td><span class="k rule">Regra</span> mesma chave ou número; <span class="k ai">IA</span> reemissão da mesma compra</td><td>Recebe uma vez</td><td>Bloqueio até resolver</td></tr>
+<tr><td><b>E7</b> Pago fora do fluxo: loja pagou antes</td><td><span class="k rule">Regra</span> cruza pix e boletos avulsos da loja</td><td>Recebe; não paga de novo</td><td>Conciliação, sem novo pagamento</td></tr>
+<tr><td><b>E8</b> Item sem cadastro</td><td><span class="k rule">Regra</span> item sem SKU</td><td>Aceita com divergência e abre o cadastro</td><td>CFO</td></tr>
+</tbody></table></div>
+
+<h3>Pedidos por WhatsApp: como conciliar com a nota</h3>
+<p>O volume é baixo, mas é por aí que nascem as notas sem ordem (E5) e os pagamentos fora do fluxo (E7). O pedido existe, só que numa conversa, sem número e sem SKU. A solução é transformar a conversa num pedido estruturado antes de a nota chegar.</p>
+<ol class="steps">
+  <li><div><strong>Capturar.</strong> A loja encaminha a conversa com o fornecedor, ou o print, para um número do contas a pagar. Sem integração com os grupos de WhatsApp: com volume baixo, encaminhar resolve.</div></li>
+  <li><div><strong>Estruturar.</strong> A IA monta o pedido: "manda 10 cx de banana amanhã" vira fornecedor, loja, item, quantidade, unidade e data. O código do fornecedor vira SKU pela camada de contexto. Com baixa confiança, a loja confirma.</div></li>
+  <li><div><strong>Registrar.</strong> Vira um pedido informal num registro da solução, fora do ERP, com o mesmo formato de uma ordem. Depois pode subir como ordem no ERP.</div></li>
+  <li><div><strong>Casar.</strong> Quando a nota chega sem ordem, o motor procura por fornecedor, loja, janela de dias e itens. Achou: segue o fluxo normal. Não achou: E5. Se já houve pix da loja: E7, sem pagar de novo.</div></li>
+</ol>
+<div class="tablewrap"><table>
+<thead><tr><th>O que isso exige</th><th></th></tr></thead>
+<tbody>
+<tr><td>Acesso</td><td>Um número de WhatsApp Business do contas a pagar. Hoje a divergência da loja corre em grupos por loja, sem acesso estruturado.</td></tr>
+<tr><td>Quem libera</td><td>Gerente de compras e comercial, que responde pelas lojas.</td></tr>
+<tr><td>Regra de uso</td><td>Pedido por WhatsApp só é pago se for encaminhado. Sem registro, a nota cai em E5 e vai para o CFO.</td></tr>
+<tr><td>Dados pessoais</td><td>As conversas têm dados de fornecedores pessoa física: guardar só o pedido estruturado, não a conversa.</td></tr>
+<tr><td>Suposição</td><td>Que as lojas encaminhem. Se não encaminharem, o E5 continua e o ganho vem só do E7, cruzando os pagamentos avulsos.</td></tr>
+</tbody></table></div>
+
+<h3>Quatro notas percorrendo o fluxo</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Nota</th><th>Caminho</th><th>Resultado</th></tr></thead>
+<tbody>
+<tr><td>Nota de loja de R$ 1,3 mil, igual ao pedido</td><td>SEFAZ → achou a ordem → bate → até R$ 5 mil</td><td><strong>Automático</strong> → lista do dia. É o caso mais comum: 83% das notas são de loja</td></tr>
+<tr><td>Nota de CD de R$ 12 mil em caixa, ordem em unidade</td><td>SEFAZ → achou a ordem → converte 1 caixa = 12 un. → bate</td><td><strong>Time aprova</strong>. Hoje o preço parece 300% maior e a nota trava</td></tr>
+<tr><td>Nota de R$ 24 mil cobrando item que não veio</td><td>SEFAZ → não bate → agente: E1 falta física → doca recebe parcial</td><td><strong>O que veio: time aprova</strong>. O item que faltou vira nota de devolução</td></tr>
+<tr><td>Item a mais, aceito para não faltar na prateleira</td><td>SEFAZ → não bate → agente: E2 item trocado → doca aceita com divergência</td><td><strong>CFO aprova</strong>. É de onde vêm os R$ 543 mil por mês</td></tr>
+</tbody></table></div>
+
+<h2 id="riscos">7 · Riscos, premissas e o que falta saber</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Item</th><th>Situação</th><th>O que o grupo faz com isso</th></tr></thead>
+<tbody>
+<tr><td>Credencial da SEFAZ no login pessoal de um terceirizado</td><td><span class="tag risk">risco imediato</span></td><td>Pedir credencial de serviço na semana 1. Se a pessoa sair, a Frente 1 para. Ponto único de falha que não aparece em nenhuma das quatro perdas</td></tr>
+<tr><td>Leitura no ERP pedida, sem previsão; exige termo de confidencialidade por pessoa</td><td><span class="tag warn">bloqueio parcial</span></td><td>Semana 1 roda só com o CSV diário já liberado. Assinar os termos no kickoff</td></tr>
+<tr><td>Homologação do ERP é cópia de março; escrita não foi pedida</td><td><span class="tag warn">fase 2</span></td><td>Baixa e nota de devolução só depois da homologação. Toda a fase 1 é leitura e proposta</td></tr>
+<tr><td>Banco sem API; pagamento um a um</td><td><span class="tag warn">limita P4</span></td><td>O ganho de custo de operar depende de o banco trocar de plano. Não prometer pagamento em lote na semana 1</td></tr>
+<tr><td>Recebimento das lojas corre em WhatsApp, sem acesso estruturado</td><td><span class="tag warn">premissa</span></td><td>O fluxo de pedido por WhatsApp depende de as lojas encaminharem. Se não encaminharem, o ganho vem só de E7</td></tr>
+<tr><td>Conflito de incentivo: compras ganha quando a mercadoria entra, financeiro absorve a divergência depois</td><td><span class="tag risk">quem arbitra</span></td><td>Aceitar com divergência continua possível, mas vira decisão explícita do CFO, registrada. O conflito se resolve na diretoria, não entre as duas áreas</td></tr>
+<tr><td>Abril concentrou ~40% do P1 do período</td><td><span class="tag accent">o que falta saber</span></td><td>Perguntar ao controller o que houve. Pode ser um fornecedor, uma campanha ou um erro de cadastro, e cada causa muda a prioridade dentro da Frente 1</td></tr>
+<tr><td>Zero recuperado de fornecedores em todos os meses</td><td><span class="tag accent">o que falta saber</span></td><td>Perguntar se existe processo de contestação ou se nunca foi tentado. Muda se a devolução é só preventiva ou também retroativa</td></tr>
+</tbody></table></div>
+
+<p class="muted"><small>Grupo 3 · Formação FDE · Barte · 14/11/2026. A Já Chegou é uma empresa fictícia montada a partir de projetos reais da Barte, com números alterados. Números marcados como "base" vêm das 80 notas do repositório da formação (<span class="mono">dados/</span>), uma fila de check balanceada por tipo de exceção; números marcados como "dossiê" vêm do Pack 2 de sábado. As leituras de prioridade, a régua de aprovação proposta e o roadmap são do grupo, não do material oficial. Os exemplos das quatro notas são ilustrativos.</small></p>
+
+</div>
